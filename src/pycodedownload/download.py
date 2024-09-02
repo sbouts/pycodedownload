@@ -1,7 +1,6 @@
 import argparse
 import logging
 import os
-import re
 
 import requests
 import urllib3
@@ -97,7 +96,7 @@ VSCODE_REPO_BASE_URL = "https://api.github.com/repos/microsoft/vscode"
 
 def download_code(code_version: str):
     """
-    download code for Linux from Microsoft debian-like repo
+    Download code for Linux from Microsoft debian-like repo.
     """
 
     if code_version != "latest":
@@ -122,8 +121,8 @@ def download_extensions():
 
 def main():
     """
-    Parse arguments and pass them to the logic to download
-    VSCode extensions and optionally VSCode Server
+    Parse arguments and pass them to the logic to download VSCode extensions
+    and optionally VSCode Server.
     """
 
     parser = argparse.ArgumentParser()
@@ -136,9 +135,7 @@ def main():
         help="configuration file",
         default=DEFAULT_CONF_LOCATION,
     )
-    parser.add_argument(
-        "--no-code", help="do not download Code", action="store_true"
-    )
+    parser.add_argument("--no-code", help="do not download Code", action="store_true")
     parser.add_argument(
         "--code-version",
         type=CodeVersion(),
