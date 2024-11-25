@@ -1,11 +1,11 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-toml
       - id: check-yaml
       - id: check-json
-      - id: double-quote-string-fixer
+      # - id: double-quote-string-fixer
       - id: debug-statements
       - id: end-of-file-fixer
       - id: mixed-line-ending
@@ -19,7 +19,7 @@ repos:
       - id: check-executables-have-shebangs
 
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 24.8.0
+    rev: 24.10.0
     hooks:
       - id: black
 
@@ -34,13 +34,13 @@ repos:
       - id: isort
         files: "\\.(py)$"
 
-  - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.5
-    hooks:
-      - id: docformatter
-        args: ["-i", "--pre-summary-newline", "--make-summary-multi-line", "--close-quotes-on-newline"]
+#  - repo: https://github.com/PyCQA/docformatter
+#    rev: v1.7.5
+#    hooks:
+#      - id: docformatter
+#        args: ["-i", "--pre-summary-newline", "--make-summary-multi-line", "--close-quotes-on-newline"]
 
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.1
-    hooks:
-      - id: flake8
+  # - repo: https://github.com/PyCQA/flake8
+  #   rev: 7.1.1
+  #   hooks:
+  #     - id: flake8

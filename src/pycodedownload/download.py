@@ -1,10 +1,11 @@
 import argparse
 import logging
 import os
+import pathlib
+import urllib
 
 import requests
-import urllib3
-from validators import CodeVersion
+from validators import CodeArch, CodeVersion
 
 ################################################################
 
@@ -91,28 +92,68 @@ VSCODE_REPO_BASE_URL = "https://api.github.com/repos/microsoft/vscode"
 #                 )
 #                 download(url, filename)
 
+
 #     return data
 
 
-def download_code(code_version: str):
+def download_file(url, filepath):
     """
-    Download code for Linux from Microsoft debian-like repo.
+    Download a file
     """
 
-    if code_version != "latest":
-        url = f"{VSCODE_REPO_BASE_URL}/"
+    if isinstance(filepath, str):
+        filepath = pathlib.Path(filepath)
 
-    url = f"https://update.code.visualstudio.com/latest/linux-deb-x64/stable"
+    filepath.parent.mkdir(exist_ok=True, parents=True)
+
+    with requests.get(url, stream=True, allow_redirects=True) as r:
+        if r.status_code == 200:
+            d = os.path.dirname(filepath)
+            if d != "":
+                os.makedirs(d, exist_ok=True)
+            with open(filepath, "wb") as f:
+                for chunk in r.iter_content(chunk_size=4096):
+                    f.write(chunk)
+            return True
+        else:
+            print("File not downloaded", r.status_code, url)
+            return False
+
+
+def get_code_server_commit_id(code_version: str, code_arch: str):
+    url = f"https://update.code.visualstudio.com/{code_version}/server-linux-{code_arch}/stable"
     r = requests.get(url, allow_redirects=False)
     if r.status_code != 302:
-        logging.error(f"cannot get stable channel")
+        logging.error(f"Error getting code commit id for version {code_version}")
         return
 
     url = r.headers["Location"]
-    path = urllib3.parse.urlsplit(url).path.split("/")
-    if len(path) != 4:
-        logging.error(f"cannot parse url {url}")
+    path = urllib.parse.urlsplit(url).path.split("/")
+    if len(path) != 6:
+        logging.error(f"Cannot parse code commit id from url {url}")
         return
+
+    return path[4]
+
+
+def download_code_server(dest_dir: str, code_version: str, code_arch: str):
+    """
+    Download code server for linux.
+    """
+
+    commit_id = get_code_server_commit_id(code_version, code_arch)
+
+    url = f"https://update.code.visualstudio.com/{code_version}/server-linux-{code_arch}/stable"
+
+    filepath = os.path.join(
+        dest_dir,
+        code_version,
+        "code-server",
+        commit_id,
+        f"code-server-{code_arch}-{code_version}.tar.gz",
+    )
+
+    download_file(url, filepath)
 
 
 def download_extensions():
@@ -135,12 +176,18 @@ def main():
         help="configuration file",
         default=DEFAULT_CONF_LOCATION,
     )
-    parser.add_argument("--no-code", help="do not download Code", action="store_true")
+    parser.add_argument("--no-code", help="do not download code", action="store_true")
     parser.add_argument(
         "--code-version",
         type=CodeVersion(),
         help="set the required vscode version",
-        default="1.92.331231223",
+        default="1.94.0",
+    )
+    parser.add_argument(
+        "--code-arch",
+        type=CodeArch(),
+        help="set the preferred code server architecture",
+        default="x64",
     )
     parser.add_argument(
         "-d",
@@ -179,7 +226,11 @@ def main():
             exit(2)
 
     if not args.no_code:
-        download_code(code_version=args.code_version)
+        download_code_server(
+            dest_dir=args.dir,
+            code_version=args.code_version,
+            code_arch=args.code_arch,
+        )
 
     download_extensions()
 

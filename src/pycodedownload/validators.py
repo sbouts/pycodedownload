@@ -14,3 +14,14 @@ class CodeVersion:
             raise ArgumentTypeError(
                 f"should be in the format x.xx.x or 'latest'. Your input: {version}"
             )
+
+
+class CodeArch:
+    _architectures = ["x64", "arm64", "armhf", "alpine"]
+
+    def __call__(self, arch):
+        if arch not in self._architectures:
+            raise ArgumentTypeError(
+                f"architecture not supported. Supported architectures: 'x64', 'arm64', 'armhf', 'alpine'. Your input: {arch}"
+            )
+        return arch
