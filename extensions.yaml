@@ -1,0 +1,14 @@
+extensions:
+  - publisher: ms-python
+    name: python
+    version: latest
+    architecture: win32-x64
+  
+  - publisher: vscodevim
+    name: vim
+    architecture: linux-x64
+    
+  - publisher: ms-vscode
+    name: cpptools
+    version: 1.10.0
+    architecture: darwin-arm64
